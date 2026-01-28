@@ -58,7 +58,6 @@ func main() {
 	}
 
 	fmt.Printf("\n%sDeleted %d branches%s\n", colorGreen, len(branchesDeleted), colorReset)
-	fmt.Printf("\n%sDeleted branches:%s\n", colorGreen, colorReset)
 	for _, branch := range branchesDeleted {
 		fmt.Printf("%s%s%s\n", colorGreen, branch, colorReset)
 	}
