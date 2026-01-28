@@ -2,26 +2,43 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/list"
 )
 
+var errorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000")).Bold(true).MarginTop(1)
+var successStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#05DF72")).MarginTop(1).Bold(true)
+var infoStyle = lipgloss.NewStyle().Underline(true).MarginTop(1)
+
 func main() {
+	var headStyle = lipgloss.NewStyle().
+		Padding(2, 4).
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(lipgloss.Color("#5D5FEF")).
+		Align(lipgloss.Center).
+		Bold(true)
+
+	fmt.Println(headStyle.Render(" Git Branch Cleaner \n This tool only deletes branches that have been merged to main or master,\n or local branches without remote tracking."))
 
 	if !checkGitCommand() {
+		fmt.Println(errorStyle.Render("Error: Git is not installed or not found in PATH."))
 		return
 	}
-	fmt.Println("Git found")
+	fmt.Println(successStyle.Render("✅ Git found"))
 
 	if !areWeInGitRepo() {
+		fmt.Println(errorStyle.Render("Error: Not inside a Git repository."))
 		return
 	}
-	fmt.Println("Inside a Git repository")
+	fmt.Println(successStyle.Render("✅ Inside a Git repository"))
 
 	branchesDeleted := []string{}
 	staleBranches := listStaleBranches()
 	if len(staleBranches) == 0 {
-		fmt.Println("No stale branches found.")
+		fmt.Println(infoStyle.Render("No stale branches found."))
 	} else {
-		fmt.Println("Stale branches:")
+		fmt.Println(infoStyle.Render("Stale branches:"))
 		for _, branch := range staleBranches {
 			fmt.Println(branch)
 			if removeStaleBranch(branch) {
@@ -31,13 +48,16 @@ func main() {
 	}
 
 	localBranches := listLocaleBranchesWithoutRemoteTracking()
-	fmt.Println("\nLocal untracked branches:")
 	if len(localBranches) > 0 {
-		fmt.Println("We found some local branches.")
-		for _, branch := range localBranches {
-			fmt.Println(branch)
-		}
-		fmt.Println("Do you want to delete these local branches? (y/n)")
+		fmt.Println(infoStyle.Render("We found some local branches."))
+
+		listBranch := list.New(localBranches)
+
+		fmt.Println(listBranch)
+
+		var style = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFA500")).Bold(true)
+
+		fmt.Println(style.Render("Do you want to delete these local branches? (y/n)"))
 		var response string
 		fmt.Scanln(&response)
 		if response == "y" || response == "Y" {
@@ -49,16 +69,13 @@ func main() {
 		}
 	}
 
-	const colorGreen = "\033[32m"
-	const colorReset = "\033[0m"
-
 	if len(branchesDeleted) == 0 {
-		fmt.Println("\nNo branches were deleted.")
+		fmt.Println(successStyle.Render("No branches were deleted."))
 		return
 	}
 
-	fmt.Printf("\n%sDeleted %d branches%s\n", colorGreen, len(branchesDeleted), colorReset)
-	for _, branch := range branchesDeleted {
-		fmt.Printf("%s%s%s\n", colorGreen, branch, colorReset)
-	}
+	fmt.Println(successStyle.Render(fmt.Sprintf("Deleted %d branches", len(branchesDeleted))))
+	listDeletedBranches := list.New(branchesDeleted)
+
+	fmt.Println(listDeletedBranches)
 }

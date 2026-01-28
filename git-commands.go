@@ -64,7 +64,7 @@ func listLocaleBranchesWithoutRemoteTracking() []string {
 	lines := string(output)
 	for _, line := range strings.Split(lines, "\n") {
 		branch := strings.TrimSpace(line)
-		if branch != "" && (strings.Contains(branch, "gone]") || !strings.Contains(branch, "[origin/")) {
+		if branch != "" && (strings.Contains(branch, "gone]") || !strings.Contains(branch, "[origin/")) && !strings.Contains(branch, "main") && !strings.Contains(branch, "master") {
 			branchName := strings.Split(branch, " ")[0]
 			branchName = strings.TrimPrefix(branchName, "* ")
 			branchesWithoutRemoteTracking = append(branchesWithoutRemoteTracking, branchName)
@@ -78,7 +78,7 @@ func listLocaleBranchesWithoutRemoteTracking() []string {
 func removeStaleBranch(branch string) bool {
 	branch = strings.TrimPrefix(branch, "origin/")
 	if !checkIfBranchExists(branch) {
-		fmt.Printf("Branch %s does not exist locally, skipping deletion.\n", branch)
+		// fmt.Printf("Branch %s does not exist locally, skipping deletion.\n", branch)
 		return false
 	}
 	_, err := exec.Command("git", "branch", "-D", branch).Output()
