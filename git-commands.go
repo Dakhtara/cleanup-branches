@@ -53,22 +53,64 @@ func listStaleBranches() []string {
 	return staleBranches
 }
 
-func listLocalBranches() []string {
-	output, err := exec.Command("git", "branch").Output()
+func listLocaleBranchesWithoutRemoteTracking() []string {
+	output, err := exec.Command("git", "branch", "-vv").Output()
 	if err != nil {
-		fmt.Println("Failed to list local branches.")
+		fmt.Println("Failed to list local branches with verbose info.")
 		return nil
 	}
 
-	var localBranches []string
+	var branchesWithoutRemoteTracking []string
 	lines := string(output)
 	for _, line := range strings.Split(lines, "\n") {
 		branch := strings.TrimSpace(line)
-		branch = strings.TrimPrefix(branch, "* ")
-		if branch != "" {
-			localBranches = append(localBranches, branch)
+		if branch != "" && (strings.Contains(branch, "gone]") || !strings.Contains(branch, "[origin/")) {
+			branchName := strings.Split(branch, " ")[0]
+			branchName = strings.TrimPrefix(branchName, "* ")
+			branchesWithoutRemoteTracking = append(branchesWithoutRemoteTracking, branchName)
 		}
 	}
 
-	return localBranches
+	return branchesWithoutRemoteTracking
+}
+
+// Stales branches contains the origin/ prefix, we need to remove it before deletion
+func removeStaleBranch(branch string) bool {
+	branch = strings.TrimPrefix(branch, "origin/")
+	if !checkIfBranchExists(branch) {
+		fmt.Printf("Branch %s does not exist locally, skipping deletion.\n", branch)
+		return false
+	}
+	_, err := exec.Command("git", "branch", "-D", branch).Output()
+	if err != nil {
+		fmt.Printf("Failed to delete branch %s: %v\n", branch, err)
+		return false
+	} else {
+		fmt.Printf("Deleted branch %s\n", branch)
+		return true
+	}
+}
+
+func checkIfBranchExists(branch string) bool {
+	output, err := exec.Command("git", "branch", "--list", branch).Output()
+	if err != nil {
+		fmt.Printf("Failed to check if branch %s exists: %v\n", branch, err)
+		return false
+	}
+	return strings.TrimSpace(string(output)) != ""
+}
+
+func removeLocalBranch(branch string) bool {
+	if !checkIfBranchExists(branch) {
+		fmt.Printf("Branch %s does not exist locally, skipping deletion.\n", branch)
+		return false
+	}
+	_, err := exec.Command("git", "branch", "-D", branch).Output()
+	if err != nil {
+		fmt.Printf("Failed to delete local branch %s: %v\n", branch, err)
+		return false
+	} else {
+		fmt.Printf("Deleted local branch %s\n", branch)
+		return true
+	}
 }
