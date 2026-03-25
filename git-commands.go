@@ -66,7 +66,7 @@ func listLocaleBranchesWithoutRemoteTracking() []string {
 		branch := strings.TrimSpace(line)
 		if branch != "" && ((strings.Contains(branch, "gone]") || (strings.Contains(branch, "disparue]"))) || !strings.Contains(branch, "[origin/")) && !strings.Contains(branch, "main") && !strings.Contains(branch, "master") {
 			splitted := strings.Split(branch, " ")
-			if (splitted[0] == "*" && len(splitted) > 1) || (splitted[0] != "*" && len(splitted) > 0) {
+			if splitted[0] != "*" && len(splitted) > 0 {
 				branchName := splitted[0]
 				if branchName == "*" {
 					branchName = splitted[1]
