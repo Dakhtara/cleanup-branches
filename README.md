@@ -6,6 +6,12 @@ The purpose of this repo is to remove all stale branches and all no remote branc
 This code is mainly for training with Go. 
 
 
+## Build pour MacOS
+```sh
+go build cleanup-branches
+```
+
+
 ## Build pour linux
 
 ```sh

@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+
+tasks:
+  build:
+    desc: Build for linux and Mac
+    cmds:
+      - GOOS=linux GOARCH=amd64 go build -o cleanup-branches-linux-amd64 .
+      - GOOS=darwin GOARCH=amd64 go build -o cleanup-branches-darwin-amd64 .
+      - GOOS=darwin GOARCH=arm64 go build -o cleanup-branches-darwin-arm64 .
+  install-mac-arm:
+    desc: Install Mac build build to go bin
+    cmds:
+      - GOOS=darwin GOARCH=arm64 go install .

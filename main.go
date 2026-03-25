@@ -50,18 +50,19 @@ func main() {
 	fmt.Println(successStyle.Render("✅ Inside a Git repository"))
 
 	branchesDeleted := []string{}
-	staleBranches := listStaleBranches()
-	if len(staleBranches) == 0 {
-		fmt.Println(infoStyle.Render("No stale branches found."))
-	} else {
-		fmt.Println(infoStyle.Render("Stale branches:"))
-		for _, branch := range staleBranches {
-			fmt.Println(branch)
-			if removeStaleBranch(branch) {
-				branchesDeleted = append(branchesDeleted, branch)
-			}
-		}
-	}
+	// TODO: find a better way to understand if a branch is stale or not, now it uses --merged but it doesn't mean the PR was merged.
+	// staleBranches := listStaleBranches()
+	// if len(staleBranches) == 0 {
+	// 	fmt.Println(infoStyle.Render("No stale branches found."))
+	// } else {
+	// 	fmt.Println(infoStyle.Render("Stale branches:"))
+	// 	for _, branch := range staleBranches {
+	// 		fmt.Println(branch)
+	// 		if removeStaleBranch(branch) {
+	// 			branchesDeleted = append(branchesDeleted, branch)
+	// 		}
+	// 	}
+	// }
 
 	localBranches := listLocaleBranchesWithoutRemoteTracking()
 	if len(localBranches) > 0 {
